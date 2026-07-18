@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+*.pyo
+sentinelx.db
+ai/dataset/
+logs/
+quarantine/
+*.pkl
