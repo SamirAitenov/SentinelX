@@ -50,8 +50,6 @@ Every file is converted into a **15-number feature vector**:
 | `url_count` | Number of HTTP/HTTPS addresses found |
 | `suspicious_ext` | 1 if extension is .bat / .exe / .vbs / .ps1 / .dll |
 | `ip_count` | IP address patterns in content |
-| Feature | What it measures |
-|---|---|
 | `entropy` | Shannon entropy — high = encrypted/packed content |
 | `keyword_count` | Hits of suspicious commands (powershell, curl, reg add...) |
 | `unique_keywords` | Number of distinct suspicious commands found |
