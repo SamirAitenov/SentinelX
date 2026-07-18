@@ -50,7 +50,23 @@ Every file is converted into a **15-number feature vector**:
 | `url_count` | Number of HTTP/HTTPS addresses found |
 | `suspicious_ext` | 1 if extension is .bat / .exe / .vbs / .ps1 / .dll |
 | `ip_count` | IP address patterns in content |
-| + 9 more | Line stats, character ratios, file size, non-ASCII ratio... |
+| Feature | What it measures |
+|---|---|
+| `entropy` | Shannon entropy — high = encrypted/packed content |
+| `keyword_count` | Hits of suspicious commands (powershell, curl, reg add...) |
+| `unique_keywords` | Number of distinct suspicious commands found |
+| `base64_score` | Presence of long base64-encoded strings (obfuscation indicator) |
+| `url_count` | Number of HTTP/HTTPS addresses found in content |
+| `ip_count` | IP address patterns (x.x.x.x) found in content |
+| `suspicious_ext` | 1 if extension is .bat / .exe / .vbs / .ps1 / .dll, else 0 |
+| `file_size_kb` | File size in kilobytes |
+| `line_count` | Total number of lines |
+| `avg_line_length` | Average characters per line |
+| `uppercase_ratio` | Fraction of uppercase letters (0–1) |
+| `digit_ratio` | Fraction of digit characters (0–1) |
+| `special_char_ratio` | Fraction of non-alphanumeric, non-space characters |
+| `non_ascii_ratio` | Fraction of bytes outside printable ASCII |
+| `unique_line_ratio` | Unique lines / total lines — low value indicates packer |
 
 Two models are trained and compared — **RandomForest** (200 trees) and **XGBoost** (200 estimators). The winner by F1 score is saved automatically.
 
