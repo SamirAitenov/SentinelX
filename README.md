@@ -46,12 +46,6 @@ Every file is converted into a **15-number feature vector**:
 |---|---|
 | `entropy` | Shannon entropy — high = encrypted/packed content |
 | `keyword_count` | Hits of suspicious commands (powershell, curl, reg add...) |
-| `base64_score` | Presence of long base64-encoded strings (obfuscation) |
-| `url_count` | Number of HTTP/HTTPS addresses found |
-| `suspicious_ext` | 1 if extension is .bat / .exe / .vbs / .ps1 / .dll |
-| `ip_count` | IP address patterns in content |
-| `entropy` | Shannon entropy — high = encrypted/packed content |
-| `keyword_count` | Hits of suspicious commands (powershell, curl, reg add...) |
 | `unique_keywords` | Number of distinct suspicious commands found |
 | `base64_score` | Presence of long base64-encoded strings (obfuscation indicator) |
 | `url_count` | Number of HTTP/HTTPS addresses found in content |
