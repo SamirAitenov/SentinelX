@@ -1,153 +1,172 @@
 # SentinelX AI Antivirus
 
-Интеллектуальная система обнаружения вредоносного ПО с эвристическим анализом и модулем машинного обучения.
+> Intelligent malware detection system combining heuristic analysis and machine learning
+
+![Python](https://img.shields.io/badge/Python-3.10+-blue)
+![PyQt6](https://img.shields.io/badge/GUI-PyQt6-cyan)
+![ML](https://img.shields.io/badge/ML-RandomForest%20%7C%20XGBoost-green)
+![Tests](https://img.shields.io/badge/Tests-45%20passing-brightgreen)
+![License](https://img.shields.io/badge/License-MIT-yellow)
 
 ---
 
-## Структура проекта
+## Overview
+
+SentinelX is a desktop antivirus application built from scratch in Python. It uses two independent detection methods — rule-based heuristic analysis and a trained machine learning model — to identify malicious files. Dangerous files are automatically quarantined before they can execute.
+
+---
+
+## Screenshots
+
+> Dashboard — live CPU/RAM monitoring, threat counters, process list
+
+> AI Scan — RandomForest/XGBoost verdict with confidence percentage and feature breakdown
+
+---
+
+## Features
+
+| Feature | Description |
+|---|---|
+| **Heuristic Scanner** | Scores files by extension and suspicious keywords (powershell, wget, reg add...) |
+| **Hash Checker** | SHA-256 fingerprint compared against known malware database |
+| **AI Scanner** | RandomForest + XGBoost trained on 15 numeric file features |
+| **Realtime Protection** | Watchdog monitors a folder and quarantines threats instantly |
+| **Quarantine** | Isolates dangerous files with Restore / Delete options |
+| **Activity Log** | Timestamped record of every action with search and color coding |
+| **Dashboard** | Live CPU/RAM graph, threat counters, top processes |
+
+---
+
+## AI Module
+
+Every file is converted into a **15-number feature vector**:
+
+| Feature | What it measures |
+|---|---|
+| `entropy` | Shannon entropy — high = encrypted/packed content |
+| `keyword_count` | Hits of suspicious commands (powershell, curl, reg add...) |
+| `base64_score` | Presence of long base64-encoded strings (obfuscation) |
+| `url_count` | Number of HTTP/HTTPS addresses found |
+| `suspicious_ext` | 1 if extension is .bat / .exe / .vbs / .ps1 / .dll |
+| `ip_count` | IP address patterns in content |
+| + 9 more | Line stats, character ratios, file size, non-ASCII ratio... |
+
+Two models are trained and compared — **RandomForest** (200 trees) and **XGBoost** (200 estimators). The winner by F1 score is saved automatically.
+
+### Results
+
+![Confusion Matrix](ai/plots/confusion_matrix.png)
+![ROC Curve](ai/plots/roc_curve.png)
+![Feature Importance](ai/plots/feature_importance.png)
+![Model Comparison](ai/plots/model_comparison.png)
+
+---
+
+## Architecture
 
 ```
 SentinelX/
-├── main.py
-├── requirements.txt
+├── main.py                   — entry point
 ├── core/
-│   ├── scanner.py              — сканирование папок и файлов
-│   ├── heuristic_engine.py     — эвристический анализ по ключевым словам
-│   ├── hash_checker.py         — проверка SHA-256 хешей
-│   ├── quarantine.py           — изоляция, восстановление и удаление файлов
-│   ├── realtime_protection.py  — слежение за файловой системой (watchdog)
-│   ├── logger.py               — запись и чтение событий
-│   └── database.py             — SQLite база данных угроз
+│   ├── scanner.py            — file and directory scanning
+│   ├── heuristic_engine.py   — keyword and extension scoring
+│   ├── hash_checker.py       — SHA-256 hash verification
+│   ├── quarantine.py         — isolate, restore, delete
+│   ├── realtime_protection.py — watchdog-based live monitoring
+│   ├── logger.py             — event logging
+│   └── database.py           — SQLite threat history
 ├── ai/
-│   ├── features.py             — извлечение 15 числовых признаков из файла
-│   ├── dataset_generator.py    — генератор синтетических malware/safe файлов
-│   ├── trainer.py              — обучение RandomForest и сохранение модели
-│   ├── model.py                — загрузка модели и предсказание
-│   ├── model.pkl               — обученная модель (готова к использованию)
-│   └── scaler.pkl              — нормализатор признаков
+│   ├── features.py           — 15-feature extraction
+│   ├── trainer.py            — train RandomForest + XGBoost, save best
+│   ├── model.py              — load model, predict single file
+│   └── plots/                — confusion matrix, ROC, feature importance
 └── gui/
-    ├── app.py                  — главное окно, все 7 экранов
-    ├── theme.py                — цвета, стили, дизайн-токены
-    └── widgets.py              — переиспользуемые UI-компоненты
+    ├── app.py                — 7-screen PyQt6 interface
+    ├── theme.py              — color tokens and stylesheets
+    └── widgets.py            — reusable UI components
 ```
 
 ---
 
-## Установка
+## Installation
 
 ```bash
+git clone https://github.com/SamirAitenov/SentinelX.git
+cd SentinelX
 pip install -r requirements.txt
 python main.py
 ```
 
----
-
-## Экраны приложения
-
-| Экран | Описание |
-|---|---|
-| Dashboard | Статус защиты, CPU/RAM в реальном времени, счётчики угроз |
-| Scan | Сканирование папки — эвристика + хеш-анализ |
-| AI Scan | Сканирование через ML-модель с уверенностью в % |
-| Threats | Таблица всех найденных угроз с фильтром по риску |
-| Quarantine | Список изолированных файлов, Restore / Delete |
-| Logs | Журнал событий с поиском и подсветкой |
-| Settings | Включение Realtime Protection, выбор папки мониторинга |
-
----
-
-## AI / ML модуль
-
-### Как работает
-
-Каждый файл преобразуется в вектор из **15 числовых признаков**:
-
-| Признак | Что измеряет |
-|---|---|
-| `entropy` | Энтропия Шеннона — высокая = возможно зашифрован/упакован |
-| `keyword_count` | Количество подозрительных команд (powershell, wget, reg add...) |
-| `unique_keywords` | Количество уникальных подозрительных команд |
-| `base64_score` | Наличие длинных base64-строк (признак обфускации) |
-| `url_count` | Количество http:// и https:// адресов |
-| `ip_count` | Количество IP-адресов в содержимом |
-| `suspicious_ext` | Подозрительное расширение (.bat, .exe, .vbs, .ps1...) |
-| `file_size_kb` | Размер файла в КБ |
-| `avg_line_length` | Средняя длина строки |
-| `uppercase_ratio` | Доля заглавных букв |
-| `digit_ratio` | Доля цифр |
-| `special_char_ratio` | Доля специальных символов |
-| `non_ascii_ratio` | Доля байт вне ASCII (бинарный контент) |
-| `line_count` | Количество строк |
-| `unique_line_ratio` | Доля уникальных строк (низкая = упаковщик) |
-
-### Модель
-
-- **Алгоритм:** RandomForestClassifier (scikit-learn)
-- **Деревьев:** 200
-- **Признаков:** 15
-- **Классы:** MALWARE / SAFE
-- **Датасет:** 800 синтетических файлов (400 malware + 400 safe)
-- **Точность на тестовой выборке:** 100% (синтетика), ~85-95% на реальных файлах
-
-### Вердикт
-
-```
-Файл → extract_features() → RandomForest → MALWARE/SAFE + уверенность %
-```
-
-- Уверенность ≥ 80% + MALWARE → риск **HIGH**
-- Уверенность < 80% + MALWARE → риск **MEDIUM**
-- Уверенность ≥ 80% + SAFE → риск **LOW**
-- Уверенность < 80% + SAFE → риск **MEDIUM** (неопределённость)
-
-### Преимущество перед эвристикой
-
-Обычная эвристика пропустит файл, в котором нет явных ключевых слов, но есть:
-- base64-закодированный payload
-- высокая энтропия (признак шифрования)
-- подозрительное расширение без подозрительного текста
-
-AI-модуль ловит такие файлы по **статистическому профилю**, не по конкретным словам.
-
-### Переобучение модели
+### Train the AI model
 
 ```bash
 python -m ai.trainer
 ```
 
-Или через кнопку **"Retrain model"** прямо в интерфейсе (экран AI Scan).
+Generates a synthetic dataset, trains both models, compares metrics, saves the winner to `ai/model.pkl`, and exports 4 comparison charts to `ai/plots/`.
 
 ---
 
-## Realtime Protection
+## Testing
 
-Watchdog отслеживает любые новые файлы в выбранной папке. При появлении нового файла:
+```bash
+python test_all.py
+```
 
-1. Ждёт 1.5 сек (файл дописывается на диск)
-2. Запускает эвристический анализ
-3. Если угроза — автоматически перемещает в карантин и записывает в лог
+**45 automated tests** across all modules:
 
-Собственные папки (`quarantine/`, `logs/`) игнорируются, чтобы не создавать ложных срабатываний.
+- Hash Checker — SHA-256 calculation, malicious hash detection
+- Heuristic Engine — correct risk level for 6 file types
+- Scanner — threat detection, DB saving, quarantine
+- Quarantine — move, list, restore, delete
+- Logger — write, read, search, clear
+- Database — save, count by risk, delete
+- AI Features — all 15 features extracted correctly
+- AI Model — 7 test files, 100% accuracy
+- Realtime Protection — auto-detection and quarantine of new files
 
 ---
 
-## Технологии
+## Tech Stack
 
-| Компонент | Технология |
+| Component | Technology |
 |---|---|
-| Язык | Python 3.10+ |
+| Language | Python 3.10+ |
 | GUI | PyQt6 |
-| Realtime | watchdog |
-| ML | scikit-learn (RandomForest) |
-| БД | SQLite |
-| Графики | matplotlib |
-| Мониторинг процессов | psutil |
+| Realtime monitoring | watchdog |
+| Machine Learning | scikit-learn, XGBoost |
+| Data processing | numpy |
+| Charts | matplotlib |
+| System monitoring | psutil |
+| Database | SQLite |
 
 ---
 
-## Что планируется дальше
+## How Detection Works
 
-- behavior_monitor.py — поведенческий анализ при запуске файла
-- XGBoost / Neural Network вместо RandomForest
-- Обучение на реальных публичных датасетах (EMBER, VirusShare)
-- URL Protection, USB Protection, Ransomware Shield
+```
+File selected
+    ↓
+SHA-256 hash → compare with MALICIOUS_HASHES
+    ↓
+Heuristic analysis → score by extension + keywords
+    ↓
+If risk = HIGH → move to quarantine + save to DB + log event
+    ↓
+AI Scan (optional) → extract 15 features → RandomForest/XGBoost → verdict + confidence %
+```
+
+---
+
+## Author
+
+**Samir Aitenov** — 10th grade student, Kazakhstan
+
+Built as a research project for academic competition and university portfolio.
+
+---
+
+## License
+
+MIT License — free to use and modify with attribution.
