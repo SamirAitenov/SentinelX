@@ -18,9 +18,23 @@ SentinelX is a desktop antivirus application built from scratch in Python. It us
 
 ## Screenshots
 
-> Dashboard — live CPU/RAM monitoring, threat counters, process list
+### Dashboard
+![Dashboard](screenshots/dashboard.png)
 
-> AI Scan — RandomForest/XGBoost verdict with confidence percentage and feature breakdown
+### Scan
+![Scan](screenshots/scan.png)
+
+### AI Scan
+![AI Scan](screenshots/ai_scan.png)
+
+### Threats
+![Threats](screenshots/threats.png)
+
+### Quarantine
+![Quarantine](screenshots/quarantine.png)
+
+### Logs
+![Logs](screenshots/logs.png)
 
 ---
 
