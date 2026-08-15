@@ -5,7 +5,7 @@ from core.hash_checker import is_malicious_hash
 from core.quarantine import move_to_quarantine
 from core.logger import log_event
 from core.database import save_threat
-from core.behavior_monitor import analyze as behavior_analyze
+from core.app import analyze as behavior_analyze
 
 
 def scan_file(file_path):
