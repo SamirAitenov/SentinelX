@@ -1,8 +1,3 @@
-"""
-model.py — загрузка модели и предсказание для одного файла.
-Работает с любой сохранённой моделью — RandomForest или XGBoost.
-"""
-
 import os
 import pickle
 from typing import Optional
@@ -26,7 +21,6 @@ def is_model_ready():
 
 
 def get_model_info():
-    """Возвращает информацию об активной модели для отображения в GUI."""
     global _meta
     if _meta is None and os.path.exists(META_PATH):
         with open(META_PATH, "rb") as f:

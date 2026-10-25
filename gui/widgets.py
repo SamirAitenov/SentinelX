@@ -21,9 +21,9 @@ class StatCard(QFrame):
         layout.setContentsMargins(18, 16, 18, 16)
         layout.setSpacing(4)
 
-        title_label = QLabel(title.upper())
-        title_label.setStyleSheet(f"color: {theme.TEXT_DIM}; font-size: 11px; font-weight: 700; letter-spacing: 1px; border: none;")
-        layout.addWidget(title_label)
+        self.title_label = QLabel(title.upper())
+        self.title_label.setStyleSheet(f"color: {theme.TEXT_DIM}; font-size: 11px; font-weight: 700; letter-spacing: 1px; border: none;")
+        layout.addWidget(self.title_label)
 
         self.value_label = QLabel(value)
         self.value_label.setStyleSheet(f"color: {accent}; font-size: 28px; font-weight: 800; border: none;")

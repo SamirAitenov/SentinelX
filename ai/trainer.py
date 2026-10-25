@@ -1,10 +1,3 @@
-"""
-trainer.py — обучает RandomForest и XGBoost, сравнивает, сохраняет лучшую.
-
-Запуск:
-    python -m ai.trainer
-"""
-
 import os
 import sys
 import pickle
@@ -25,10 +18,6 @@ from xgboost import XGBClassifier
 
 from ai.features import extract_features, FEATURE_NAMES
 from ai.dataset_generator import generate_dataset
-
-# ---------------------------------------------------------------------------
-# Пути
-# ---------------------------------------------------------------------------
 AI_DIR      = os.path.dirname(os.path.abspath(__file__))
 DATASET_DIR = os.path.join(AI_DIR, "dataset")
 MODEL_PATH  = os.path.join(AI_DIR, "model.pkl")
@@ -38,11 +27,6 @@ PLOTS_DIR   = os.path.join(AI_DIR, "plots")
 
 MALWARE = 1
 SAFE    = 0
-
-
-# ---------------------------------------------------------------------------
-# Загрузка данных
-# ---------------------------------------------------------------------------
 
 def load_samples(directory, label):
     X, y = [], []
@@ -73,10 +57,6 @@ def build_dataset(n_malware=400, n_safe=400):
     y = np.array(y_mal + y_safe, dtype=np.int32)
     return X, y
 
-
-# ---------------------------------------------------------------------------
-# Графики
-# ---------------------------------------------------------------------------
 
 def _plot_confusion_matrix(cm, model_name, ax):
     im = ax.imshow(cm, interpolation="nearest", cmap="Blues")
@@ -234,10 +214,6 @@ def save_plots(rf_model, xgb_model, scaler, X_test, y_test):
     print(f"  Сохранён: {path}")
 
 
-# ---------------------------------------------------------------------------
-# Обучение
-# ---------------------------------------------------------------------------
-
 def train(n_malware=400, n_safe=400):
     X, y = build_dataset(n_malware, n_safe)
 
@@ -250,7 +226,6 @@ def train(n_malware=400, n_safe=400):
         X_scaled, y, test_size=0.2, random_state=42, stratify=y
     )
 
-    # ── RandomForest ────────────────────────────────────────────────────────
     print("\n[1/2] Обучаю RandomForest...")
     rf = RandomForestClassifier(
         n_estimators=200,
@@ -268,7 +243,6 @@ def train(n_malware=400, n_safe=400):
     rf_acc  = accuracy_score(y_test, rf_pred)
     print(f"   Accuracy: {rf_acc:.1%}  |  F1: {rf_f1:.4f}")
 
-    # ── XGBoost ─────────────────────────────────────────────────────────────
     print("\n[2/2] Обучаю XGBoost...")
     xgb = XGBClassifier(
         n_estimators=200,
@@ -288,7 +262,6 @@ def train(n_malware=400, n_safe=400):
     xgb_acc  = accuracy_score(y_test, xgb_pred)
     print(f"   Accuracy: {xgb_acc:.1%}  |  F1: {xgb_f1:.4f}")
 
-    # ── Сравнение ───────────────────────────────────────────────────────────
     print(f"\n{'='*50}")
     print(f"  СРАВНЕНИЕ МОДЕЛЕЙ")
     print(f"{'='*50}")
@@ -298,7 +271,6 @@ def train(n_malware=400, n_safe=400):
     print(f"  {'XGBoost':<20} {xgb_acc:>10.1%} {xgb_f1:>10.4f}")
     print(f"{'='*50}")
 
-    # выбираем лучшую по F1
     if xgb_f1 >= rf_f1:
         best_model = xgb
         best_name  = "XGBoost"
@@ -308,7 +280,6 @@ def train(n_malware=400, n_safe=400):
 
     print(f"\n  Победитель: {best_name} (F1 = {max(rf_f1, xgb_f1):.4f})")
 
-    # кросс-валидация для победителя
     print(f"\nКросс-валидация {best_name} (5-fold):")
     cv = cross_val_score(best_model, X_scaled, y, cv=5, scoring="f1")
     print(f"  F1: {[f'{s:.3f}' for s in cv]}")

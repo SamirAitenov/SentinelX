@@ -1,8 +1,24 @@
 import hashlib
+import os
 
-MALICIOUS_HASHES = {
-    "5d41402abc4b2a76b9719d911017c592"
-}
+HASH_DB_PATH = os.path.join(os.path.dirname(__file__), "malware_hashes.txt")
+
+
+def load_hashes(path=HASH_DB_PATH):
+    hashes = set()
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.split("#")[0].strip().lower()
+                if len(line) == 64:
+                    hashes.add(line)
+    except FileNotFoundError:
+        pass
+    return hashes
+
+
+MALICIOUS_HASHES = load_hashes()
+
 
 def calculate_sha256(file_path):
     sha256 = hashlib.sha256()

